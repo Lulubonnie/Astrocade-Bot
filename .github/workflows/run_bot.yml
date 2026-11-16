@@ -1,0 +1,29 @@
+name: Auto Play Astrocade
+
+on:
+  # Runs automatically every 2 hours
+  schedule:
+    - cron: '0 */2 * * *'
+  # Lets you also trigger it manually with a button
+  workflow_dispatch:
+
+jobs:
+  play-game:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install AI Agent & Browser
+        run: |
+          pip install -q browser-use
+          playwright install chromium --with-deps
+          
+      - name: Play My Dream Supermarket
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python play.py
