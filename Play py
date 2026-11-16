@@ -1,0 +1,23 @@
+import asyncio, os
+from browser_use import Agent, Browser, ChatGoogle
+
+async def main():
+    browser = Browser('chromium', headless=True)
+    llm = ChatGoogle(model="gemini-3.8-flash-lite")
+    
+    agent = Agent(
+        task="Go to https://astrocade.com, wait 5 seconds for the game to load, click Play, and play My Dream Supermarket by sorting the grocery items onto the shelves.",
+        llm=llm,
+        browser=browser,
+    )
+    
+    for attempt in range(5):
+        result = await agent.run(max_steps=30)
+        if result.error and "503" in str(result.error):
+            print(f"Server busy, retrying in 15s... ({attempt + 1}/5)")
+            await asyncio.sleep(15)
+        else:
+            break
+
+if __name__ == "__main__":
+    asyncio.run(main())
