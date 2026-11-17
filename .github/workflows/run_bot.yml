@@ -26,7 +26,7 @@ jobs:
           python -c "import asyncio, glob, shutil; from browser_use import Agent, Browser, ChatGoogle; 
           async def run():
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
-                  agent = Agent(task='Go to https://astrocade.com, wait 6 seconds for the game to load, close any popups or banners, click Play, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
+                  agent = Agent(task='Open the exact URL https://astrocade.com directly (do not go to the homepage or search). Wait 6 seconds, close any popups, click the Play button, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
                   res = await agent.run(max_steps=15)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs: shutil.copy(imgs[-1], 'proof.png')
