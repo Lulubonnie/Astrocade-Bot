@@ -20,13 +20,15 @@ jobs:
       - name: Install and Play
         env:
           GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GAME_URL: "https://astrocade.com"
         run: |
           python -m pip install -q browser-use playwright
           python -m playwright install chromium --with-deps
-          python -c "import asyncio, glob, shutil; from browser_use import Agent, Browser, ChatGoogle; 
+          python -c "import os, asyncio, glob, shutil; from browser_use import Agent, Browser, ChatGoogle; 
           async def run():
+              url = os.environ['GAME_URL']
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
-                  agent = Agent(task='Open the exact URL https://astrocade.com directly (do not go to the homepage or search). Wait 6 seconds, close any popups, click the Play button, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
+                  agent = Agent(task=f'Navigate immediately to {url}. Wait 6 seconds for the page to load, close any popups, click the Play button, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
                   res = await agent.run(max_steps=15)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs: shutil.copy(imgs[-1], 'proof.png')
