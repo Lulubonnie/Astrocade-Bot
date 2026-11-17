@@ -1,15 +1,16 @@
-name: Auto Play Astrocade
+name: Game 1 - Jam Out Parking Puzzle
 
 on:
   push:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 jobs:
   play-game:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -19,4 +20,13 @@ jobs:
         run: |
           python -m pip install -q browser-use playwright
           python -m playwright install chromium --with-deps
-          python -c "import asyncio; from browser_use import Agent, Browser, ChatGoogle; asyncio.run(Agent(task='Go to https://astrocade.com, wait 5 seconds, click Play, and play Jam Out: Parking Puzzle by moving or clicking the parked cars in order to clear the traffic jam.', llm=ChatGoogle(model='gemini-3.8-flash-lite'), browser=Browser('chromium', headless=True)).run(max_steps=30))"
+          python -c "import asyncio; from browser_use import Agent, Browser, ChatGoogle; asyncio.run(Agent(task='Go to https://astrocade.com, wait 6 seconds for the game to load, close any popups or banners, click Play, make at least 8 moves inside Jam Out: Parking Puzzle, and save a screenshot named proof.png in the current directory.', llm=ChatGoogle(model='gemini-flash-latest'), browser=Browser('chromium', headless=True)).run(max_steps=25))"
+      - name: Save Proof and Keep Active
+        if: always()
+        run: |
+          date > last_run.txt
+          git config user.name "Astrocade Bot"
+          git config user.email "bot@://github.com"
+          git add last_run.txt proof.png || git add last_run.txt
+          git commit -m "Keep alive and save proof" || exit 0
+          git push
