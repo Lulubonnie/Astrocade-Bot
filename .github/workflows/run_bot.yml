@@ -29,14 +29,15 @@ jobs:
 
           async def run():
               task = (
-                  "Step 1: Call goto_url('https://www.astrocade.com/s/PB7VMwYsys') and wait 6 seconds. "
-                  "Step 2: Click the Play button in the center of the screen and wait 3 seconds. "
-                  "Step 3: This is an HTML5 canvas game. Do NOT import requests or inspect HTML. "
-                  "Look at the screenshot and use click_at_xy(x, y) to click unblocked cars in Jam Out: Parking Puzzle to drive them out of the lot for at least 10 moves."
+                  "Step 1: Call goto_url('https://astrocade.com') and wait 6 seconds for the JAM OUT loading bar to finish. "
+                  "Step 2: Look at the screenshot. The game is in a vertical mobile frame in the center of the page. Click the big green Play button (with a white triangle) below the car grid and wait 2 seconds. "
+                  "Step 3: Play Jam Out: Parking Puzzle by ONLY clicking cars with click_at_xy(x, y)—do NOT drag or inspect HTML. "
+                  "Each car has a white arrow on it showing the direction it drives when clicked. Only click a car if its path in front of the white arrow is completely clear to the edge of the grid. "
+                  "If a CLEARED! popup appears, click the green Play/Next button in the center to continue. Play for at least 12 moves."
               )
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
                   agent = Agent(task=task, llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
-                  res = await agent.run(max_steps=25)
+                  res = await agent.run(max_steps=22)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs:
                       shutil.copy(imgs[-1], 'proof.png')
