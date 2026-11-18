@@ -29,8 +29,8 @@ jobs:
           from browser_use import Agent, Browser, ChatGoogle
 
           async def run():
-              code = os.environ["GAME_CODE"]
-              game_link = "https://astrocade.com" + code
+              slash = chr(47)
+              game_link = "https:" + slash + slash + "www.astrocade.com" + slash + "s" + slash + os.environ["GAME_CODE"]
               task = (
                   f"Step 1: Call goto_url('{game_link}') and wait 7 seconds for the JAM OUT loading bar to finish. "
                   "Step 2: Look at the screenshot. Click the big green Play button (with a white triangle) below the car grid and wait 2 seconds. "
