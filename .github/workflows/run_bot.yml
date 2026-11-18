@@ -20,24 +20,27 @@ jobs:
       - name: Install and Play
         env:
           GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GAME_CODE: "PB7VMwYsys"
         run: |
           python -m pip install -q browser-use playwright
           python -m playwright install chromium --with-deps
           cat << 'EOF' > bot.py
-          import asyncio, glob, shutil
+          import os, asyncio, glob, shutil
           from browser_use import Agent, Browser, ChatGoogle
 
           async def run():
+              code = os.environ["GAME_CODE"]
+              game_link = "https://astrocade.com" + code
               task = (
-                  "Step 1: Call goto_url('https://astrocade.com') and wait 6 seconds for the JAM OUT loading bar to finish. "
-                  "Step 2: Look at the screenshot. The game is in a vertical mobile frame in the center of the page. Click the big green Play button (with a white triangle) below the car grid and wait 2 seconds. "
-                  "Step 3: Play Jam Out: Parking Puzzle by ONLY clicking cars with click_at_xy(x, y)—do NOT drag or inspect HTML. "
-                  "Each car has a white arrow on it showing the direction it drives when clicked. Only click a car if its path in front of the white arrow is completely clear to the edge of the grid. "
-                  "If a CLEARED! popup appears, click the green Play/Next button in the center to continue. Play for at least 12 moves."
+                  f"Step 1: Call goto_url('{game_link}') and wait 7 seconds for the JAM OUT loading bar to finish. "
+                  "Step 2: Look at the screenshot. Click the big green Play button (with a white triangle) below the car grid and wait 2 seconds. "
+                  "Step 3: Play Jam Out: Parking Puzzle using ONLY click_at_xy(x, y). Do NOT use js(), http_get(), or cdp(). "
+                  "Each car has a white arrow showing which way it drives when clicked. Click unblocked cars whose path in front of the arrow is clear. "
+                  "If a CLEARED! popup appears, click the green Play/Next button in the center. Play for at least 12 moves."
               )
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
                   agent = Agent(task=task, llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
-                  res = await agent.run(max_steps=22)
+                  res = await agent.run(max_steps=20)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs:
                       shutil.copy(imgs[-1], 'proof.png')
