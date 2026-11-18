@@ -26,11 +26,9 @@ jobs:
           python -m playwright install chromium --with-deps
           python -c "import os, asyncio, glob, shutil; from browser_use import Agent, Browser, ChatGoogle; 
           async def run():
-              b = Browser('chromium', headless=True)
-              p = await b.new_page(os.environ['GAME_URL'])
-              await asyncio.sleep(6)
+              u = os.environ['GAME_URL']
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
-                  agent = Agent(task='The game Jam Out: Parking Puzzle is already open on the current page. Do NOT navigate away or search. Close any popups, click the Play button, and make at least 8 moves to solve the parking puzzle.', llm=ChatGoogle(model=m), browser=b)
+                  agent = Agent(task='Open ' + u + ' using goto_url. Wait 6 seconds for the game to load, close any popups, click Play, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
                   res = await agent.run(max_steps=15)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs: shutil.copy(imgs[-1], 'proof.png')
@@ -42,7 +40,7 @@ jobs:
         run: |
           date > last_run.txt
           git config user.name "Astrocade Bot"
-          git config user.email "bot@://github.com"
+          git config user.email "bot@users.noreply.github.com"
           git add last_run.txt
           [ -f proof.png ] && git add proof.png
           git commit -m "Keep alive and save proof" || exit 0
