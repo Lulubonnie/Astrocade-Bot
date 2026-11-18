@@ -26,8 +26,8 @@ jobs:
           python -c "import asyncio, glob, shutil; from browser_use import Agent, Browser, ChatGoogle; 
           async def run():
               for m in ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite']:
-                  agent = Agent(task='Use goto_url with \"https://astrocade.com\" + \"s/\" + \"PB7VMwYsys\" (combine those three parts in Python to form the full URL—do NOT go to the homepage or use search). Wait 6 seconds, close any popups, click Play, and make at least 8 moves inside Jam Out: Parking Puzzle.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
-                  res = await agent.run(max_steps=15)
+                  agent = Agent(task='In step 1, run goto_url(\"https://astrocade.com\" + \"PB7VMwYsys\") and wait 6 seconds. This is an HTML5 canvas game: do NOT inspect DOM, HTML, or iframes. Simply look at the screenshot, click the Play button in the center of the screen, wait 3 seconds, and then click on the unblocked cars in Jam Out: Parking Puzzle to drive them out of the parking lot.', llm=ChatGoogle(model=m), browser=Browser('chromium', headless=True))
+                  res = await agent.run(max_steps=25)
                   imgs = sorted(glob.glob(f'{agent.workspace}/**/*.png', recursive=True))
                   if imgs: shutil.copy(imgs[-1], 'proof.png')
                   if not (res.error and ('503' in str(res.error) or '429' in str(res.error) or '404' in str(res.error))): break
